@@ -1,56 +1,18 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import personsService from './services/persons'
+import Persons from './components/persons'
+import PersonForm from './components/personForm'
+import Filter from './components/filter'
+import Notification from './components/notification'
 
-const Person = ({name, number}) => {
-  return (
-    <p>{name} {number}</p>
-  )
-}
-
-const Persons = ({personsToShow}) => {
-  return (
-    <div>
-    {personsToShow.map(person =>
-      <Person key={person.name} name={person.name} number={person.number}/>
-    )}
-    </div>
-  )
-}
-
-const Filter = ({handleFilterChange}) => {
-  return (
-    <form>
-      <div>
-        filter shown with <input
-        onChange={handleFilterChange} />
-      </div>
-    </form>
-  )
-}
-
-const PersonForm = ({addPerson, handleNameChange, handleNumberChange}) => {
-  return (
-    <form onSubmit={addPerson}>
-      <div>
-        name: <input
-        onChange={handleNameChange} />
-      </div>
-      <div>
-        number: <input
-        onChange={handleNumberChange} />
-      </div>
-      <div>
-        <button type="submit">add</button>
-      </div>
-    </form>
-  )
-}
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterString, setFilterString] = useState('')
+  const [notificationMessage, setNotificationMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   const handleFilterChange = (event) => {
     setFilterString(event.target.value)
@@ -66,37 +28,82 @@ const App = () => {
 
   const personsToShow = persons.filter(obj => obj.name.includes(filterString))
 
+  const setNotification = (message) => {
+    setNotificationMessage(message)
+        setTimeout(() => {
+          setNotificationMessage(null)
+        }, 5000)
+  }
+
+  const setError = (message) => {
+    setErrorMessage(message)
+        setTimeout(() => {
+          setNotificationMessage(null)
+        }, 5000)
+  }
+
   const addPerson = (event) => {
     event.preventDefault()
-    if (persons.find(obj => obj.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
-      return
-    }
     const personObject = {
       name: newName,
       number: newNumber
     }
-    setPersons(persons.concat(personObject))
+    let foundPerson = persons.find(obj => obj.name === newName)
+    if (foundPerson) {
+      if (window.confirm(`${newName} is already added to phonebook. Replace the old number with a new one?`)) {
+        personsService
+          .update(foundPerson.id, personObject)
+          .then(returnedPerson => {
+            setPersons(persons.map(person => person.id !== foundPerson.id ? person : returnedPerson))
+            setNotification(`Updated ${newName}`)
+          })
+          .catch(() => {
+            setError(`Information of ${newName} has already been removed from server`)
+          })
+      }
+      return
+    }
+    personsService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNotification(`Added ${newName}`)
+      })
   }
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then(response => {
-        setPersons(response.data)
+    personsService
+      .getAll()
+      .then(returnedPersons => {
+        setPersons(returnedPersons)
       })
   }, [])
 
+  const removePerson = (person) => {
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      personsService
+      .remove(person.id)
+      .then(() => {
+        setPersons(persons.filter(p => p.id !== person.id))
+        setNotification(`Removed ${newName}`)
+      })
+      .catch(() => {
+        setError(`Information of ${person.name} has already been removed from server`)
+      })
+    }
+  }
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notificationMessage} className="notification" />
+      <Notification message={errorMessage} className="error" />
       <Filter handleFilterChange={handleFilterChange}/>
       
       <h2>add a new</h2>
       <PersonForm addPerson={addPerson} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange}/>
 
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow}/>
+      <Persons personsToShow={personsToShow} removePerson={removePerson}/>
       
     </div>
   )
