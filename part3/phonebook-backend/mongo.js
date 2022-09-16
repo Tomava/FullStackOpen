@@ -1,7 +1,5 @@
 const mongoose = require('mongoose')
 
-const url = process.env.MONGODB_URI
-
 const AddPerson = (name, phoneNumber) => {
     mongoose.connect(url)
     const person = new Person({
@@ -37,6 +35,8 @@ if (process.argv.length<3) {
     process.exit(1)
 }
 const password = process.argv[2]
+const url =
+  `mongodb+srv://fullstack:${password}@cluster0.kmztfqk.mongodb.net/phonebook?retryWrites=true&w=majority`
 
 if (process.argv.length === 3) {
     PrintAll()
@@ -47,4 +47,3 @@ else if (process.argv.length === 5) {
     AddPerson(name, phoneNumber)
 }
 
-module.exports = mongoose.model('Person', personSchema)
