@@ -69,6 +69,10 @@ const App = () => {
         setPersons(persons.concat(returnedPerson))
         setNotification(`Added ${newName}`)
       })
+      .catch(error => {
+        console.log(error.response.data)
+        setError(error.response.data.error)
+      })
   }
 
   useEffect(() => {

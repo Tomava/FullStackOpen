@@ -1,6 +1,6 @@
-# fly.toml file generated for damp-dust-4532 on 2022-09-16T09:57:39+03:00
+# fly.toml file generated for winter-water-3529 on 2022-10-05T14:35:26+03:00
 
-app = "damp-dust-4532"
+app = "winter-water-3529"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
