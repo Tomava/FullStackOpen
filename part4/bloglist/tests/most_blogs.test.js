@@ -1,6 +1,6 @@
 const listHelper = require('../utils/list_helper')
 
-describe('total likes', () => {
+describe('most blogs', () => {
   const listWithOneBlog = [
     {
       _id: '5a422aa71b54a676234d17f8',
@@ -63,14 +63,14 @@ describe('total likes', () => {
     }
   ]
 
-  test.only('when list has only one blog equals the likes of that', () => {
-    const result = listHelper.favoriteBlog(listWithOneBlog)
-    expect(result).toEqual(listWithOneBlog[0])
+  test('when list has only one blog the author with most blogs is', () => {
+    const result = listHelper.mostBlogs(listWithOneBlog)
+    expect(result).toMatchObject( { 'author': 'Edsger W. Dijkstra', 'blogs': 1 } )
   })
 
-  test.only('all likes of a bigger list', () => {
-    const result = listHelper.favoriteBlog(listWithMultipleBlogs)
-    expect(result).toEqual(listWithMultipleBlogs[2])
+  test('most blogs with a bigger list', () => {
+    const result = listHelper.mostBlogs(listWithMultipleBlogs)
+    expect(result).toMatchObject( { 'author': 'Robert C. Martin', 'blogs': 3 } )
   })
 
 })
