@@ -3,27 +3,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
-
-const initialBlogs = [
-  {
-    title: 'Test1',
-    author: 'Mauri',
-    url: 'AA',
-    likes: 1000
-  },
-  {
-    title: 'Test2',
-    author: 'Mauri K.',
-    url: 'BB',
-    likes: 9
-  },
-  {
-    title: 'Test3',
-    author: 'Mauri Kun',
-    url: 'CC',
-    likes: 0
-  },
-]
+const helper = require('./test_helper')
 
 test('blogs are returned as json', async () => {
   await api
@@ -35,7 +15,7 @@ test('blogs are returned as json', async () => {
 test('all blogs are returned', async () => {
   const response = await api.get('/api/blogs')
 
-  expect(response.body).toHaveLength(initialBlogs.length)
+  expect(response.body).toHaveLength(helper.initialBlogs.length)
 
   const titles = response.body.map(r => r.title)
 
@@ -55,31 +35,59 @@ afterAll(() => {
 })
 
 test('blogs can be added', async () => {
+  const blog = {
+    title: 'Test4',
+    author: 'Mauri Kunnari',
+    url: 'DD',
+    likes: 3141592
+  }
   await api
     .post('/api/blogs')
-    .send({
-      title: 'Test4',
-      author: 'Mauri Kunnari',
-      url: 'DD',
-      likes: 3141592
-    })
+    .send(blog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
   const response = await api.get('/api/blogs')
 
-  expect(response.body).toHaveLength(initialBlogs.length + 1)
+  expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
 
   const titles = response.body.map(r => r.title)
   expect(titles).toContain(
-    'Test4'
+    blog.title
   )
+
 })
+
+test('blogs with no likes field will have them set to 0', async () => {
+  const blog = {
+    title: 'Test4',
+    author: 'Mauri Kunnari',
+    url: 'DD'
+  }
+  await api
+    .post('/api/blogs')
+    .send(blog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
+
+  const titles = response.body.map(r => r.title)
+  expect(titles).toContain(
+    blog.title
+  )
+  response.body.forEach(blog => {
+    expect(blog.likes).toBeDefined()
+  })
+})
+
 
 beforeEach(async () => {
   await Blog.deleteMany({})
 
-  const blogObjects = initialBlogs.map(blog => new Blog(blog))
+  const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
   const promiseArray = blogObjects.map(blog => blog.save())
   await Promise.all(promiseArray)
 })
