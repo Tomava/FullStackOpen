@@ -83,6 +83,30 @@ test('blogs with no likes field will have them set to 0', async () => {
   })
 })
 
+test('invalid blogs are not added', async () => {
+  const templateBlog = {
+    author: 'Mauri Kunnari',
+    likes: 3141592
+  }
+
+  const blogWithoutUrl = { ...templateBlog, title: 'Test4' }
+
+  await api
+    .post('/api/blogs')
+    .send(blogWithoutUrl)
+    .expect(400)
+
+  const blogWithoutTitle = { ...templateBlog, url: 'DD' }
+
+  await api
+    .post('/api/blogs')
+    .send(blogWithoutTitle)
+    .expect(400)
+
+  const response = await api.get('/api/blogs')
+  expect(response.body).toHaveLength(helper.initialBlogs.length)
+})
+
 
 beforeEach(async () => {
   await Blog.deleteMany({})
