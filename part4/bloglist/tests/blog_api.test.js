@@ -54,6 +54,28 @@ afterAll(() => {
   mongoose.connection.close()
 })
 
+test('blogs can be added', async () => {
+  await api
+    .post('/api/blogs')
+    .send({
+      title: 'Test4',
+      author: 'Mauri Kunnari',
+      url: 'DD',
+      likes: 3141592
+    })
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  expect(response.body).toHaveLength(initialBlogs.length + 1)
+
+  const titles = response.body.map(r => r.title)
+  expect(titles).toContain(
+    'Test4'
+  )
+})
+
 beforeEach(async () => {
   await Blog.deleteMany({})
 
