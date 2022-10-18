@@ -21,7 +21,7 @@ describe('when there is initially one user saved', () => {
 
     const newUser = {
       username: 'xMaurix',
-      name: 'Mauri Kunnas',
+      name: 'Mauri Kunnari',
       password: 'wordpass',
     }
 
@@ -43,7 +43,7 @@ describe('when there is initially one user saved', () => {
 
     const newUser = {
       username: 'root',
-      name: 'Mauri Kunnas',
+      name: 'Mauri Kunnari',
       password: 'wordpass',
     }
 
@@ -65,7 +65,7 @@ describe('when there is initially one user saved', () => {
 
     const newUser = {
       username: 'ab',
-      name: 'Mauri Kunnas',
+      name: 'Mauri Kunnari',
       password: 'wordpass',
     }
 
@@ -87,7 +87,7 @@ describe('when there is initially one user saved', () => {
 
     const newUser = {
       username: 'xMaurix',
-      name: 'Mauri Kunnas',
+      name: 'Mauri Kunnari',
       password: 'ab',
     }
 
