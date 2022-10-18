@@ -143,6 +143,48 @@ describe('when there are initially some blogs saved', () => {
 
     })
   })
+  describe('updating of a blog', () => {
+    test('existing blog can be updated', async () => {
+      const initialResponse = await api.get('/api/blogs')
+      const updateId = initialResponse.body[0].id
+
+      const updatedNote = {
+        title: 'TestUpdated',
+        author: 'Mauri Updater',
+        url: 'GG',
+        likes: 500
+      }
+
+      await api
+        .put(`/api/blogs/${updateId}`)
+        .send(updatedNote)
+        .expect(201)
+
+      const newResponse = await api.get('/api/blogs')
+      expect(newResponse.body).toHaveLength(helper.initialBlogs.length)
+
+      expect(newResponse.body).toContainEqual({ ...updatedNote, id: updateId })
+    })
+    test('unknown id does not update anything', async () => {
+      const updateId = await helper.nonExistingId()
+
+      const updatedNote = {
+        title: 'TestUpdated',
+        author: 'Mauri Updater',
+        url: 'GG',
+        likes: 500
+      }
+
+      await api
+        .put(`/api/blogs/${updateId}`)
+        .send(updatedNote)
+        .expect(400)
+
+      const newResponse = await api.get('/api/blogs')
+      expect(newResponse.body).toHaveLength(helper.initialBlogs.length)
+
+    })
+  })
 })
 
 afterAll(() => {
