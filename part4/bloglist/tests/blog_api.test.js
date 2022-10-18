@@ -1,17 +1,50 @@
 const mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
 const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const helper = require('./test_helper')
+
+let authorization
+
+beforeAll(async () => {
+  await User.deleteMany({})
+  const passwordHash = await bcrypt.hash('password', 10)
+  const user = new User({
+    username: 'gigaRoot',
+    name: 'veryAdmin',
+    passwordHash: passwordHash,
+  })
+  await user.save()
+
+  const loginUser = {
+    username: 'gigaRoot',
+    password: 'password',
+  }
+
+  const loggedInUser = await api
+    .post('/api/login')
+    .send(loginUser)
+
+  authorization = { 'Authorization': `bearer ${loggedInUser.body.token}` }
+})
 
 describe('when there are initially some blogs saved', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
 
-    const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
-    const promiseArray = blogObjects.map(blog => blog.save())
+    const users = await User.find({})
+    const rootUser = users[0]
+    const rootUserId = rootUser.id
+    const blogObjects = helper.initialBlogs.map(blog => new Blog({ ...blog, user: rootUserId.toString() }))
+    const promiseArray = blogObjects.map(blog => {
+      blog.save()
+      rootUser.blogs = rootUser.blogs.concat(rootUser.id)
+    })
     await Promise.all(promiseArray)
+    await rootUser.save()
   })
 
   test('blogs are returned as json', async () => {
@@ -40,6 +73,7 @@ describe('when there are initially some blogs saved', () => {
   })
 
   describe('addition of a new blog', () => {
+
     test('blogs can be added', async () => {
       const blog = {
         title: 'Test4',
@@ -50,6 +84,7 @@ describe('when there are initially some blogs saved', () => {
       await api
         .post('/api/blogs')
         .send(blog)
+        .set(authorization)
         .expect(201)
         .expect('Content-Type', /application\/json/)
 
@@ -73,6 +108,7 @@ describe('when there are initially some blogs saved', () => {
       await api
         .post('/api/blogs')
         .send(blog)
+        .set(authorization)
         .expect(201)
         .expect('Content-Type', /application\/json/)
 
@@ -100,6 +136,7 @@ describe('when there are initially some blogs saved', () => {
       await api
         .post('/api/blogs')
         .send(blogWithoutUrl)
+        .set(authorization)
         .expect(400)
 
       const blogWithoutTitle = { ...templateBlog, url: 'DD' }
@@ -107,11 +144,36 @@ describe('when there are initially some blogs saved', () => {
       await api
         .post('/api/blogs')
         .send(blogWithoutTitle)
+        .set(authorization)
         .expect(400)
 
       const response = await api.get('/api/blogs')
       expect(response.body).toHaveLength(helper.initialBlogs.length)
     })
+
+    test('blogs can not be added without authorization', async () => {
+      const blog = {
+        title: 'Test4',
+        author: 'Mauri Kunnari',
+        url: 'DD',
+        likes: 3141592
+      }
+      await api
+        .post('/api/blogs')
+        .send(blog)
+        .expect(401)
+        .expect('Content-Type', /application\/json/)
+
+      const response = await api.get('/api/blogs')
+
+      expect(response.body).toHaveLength(helper.initialBlogs.length)
+
+      const titles = response.body.map(r => r.title)
+      expect(titles).not.toContain(
+        blog.title
+      )
+    })
+
   })
   describe('deletion of a blog', () => {
     test('blogs can be deleted', async () => {
@@ -120,6 +182,7 @@ describe('when there are initially some blogs saved', () => {
 
       await api
         .delete(`/api/blogs/${deleteId}`)
+        .set(authorization)
         .expect(204)
 
       const newResponse = await api.get('/api/blogs')
@@ -136,11 +199,29 @@ describe('when there are initially some blogs saved', () => {
 
       await api
         .delete(`/api/blogs/${deleteId}`)
-        .expect(204)
+        .set(authorization)
+        .expect(400)
 
       const newResponse = await api.get('/api/blogs')
       expect(newResponse.body).toHaveLength(helper.initialBlogs.length)
 
+    })
+    test('blogs can not be deleted without authorization', async () => {
+      const initialResponse = await api.get('/api/blogs')
+      const deleteId = initialResponse.body[0].id
+
+      await api
+        .delete(`/api/blogs/${deleteId}`)
+        .expect(401)
+
+      const newResponse = await api.get('/api/blogs')
+      expect(newResponse.body).toHaveLength(helper.initialBlogs.length)
+
+      const titles = newResponse.body.map(r => r.title)
+
+      expect(titles).toContain(
+        initialResponse.body[0].title
+      )
     })
   })
   describe('updating of a blog', () => {
@@ -163,7 +244,10 @@ describe('when there are initially some blogs saved', () => {
       const newResponse = await api.get('/api/blogs')
       expect(newResponse.body).toHaveLength(helper.initialBlogs.length)
 
-      expect(newResponse.body).toContainEqual({ ...updatedNote, id: updateId })
+      const titles = newResponse.body.map(r => r.title)
+      expect(titles).toContain(
+        updatedNote.title
+      )
     })
     test('unknown id does not update anything', async () => {
       const updateId = await helper.nonExistingId()
