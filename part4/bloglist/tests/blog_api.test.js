@@ -39,7 +39,7 @@ describe('when there are initially some blogs saved', () => {
     expect(response.body[0].id).toBeDefined()
   })
 
-  describe('addition of a new note', () => {
+  describe('addition of a new blog', () => {
     test('blogs can be added', async () => {
       const blog = {
         title: 'Test4',
@@ -111,6 +111,36 @@ describe('when there are initially some blogs saved', () => {
 
       const response = await api.get('/api/blogs')
       expect(response.body).toHaveLength(helper.initialBlogs.length)
+    })
+  })
+  describe('deletion of a blog', () => {
+    test('blogs can be deleted', async () => {
+      const initialResponse = await api.get('/api/blogs')
+      const deleteId = initialResponse.body[0].id
+
+      await api
+        .delete(`/api/blogs/${deleteId}`)
+        .expect(204)
+
+      const newResponse = await api.get('/api/blogs')
+      expect(newResponse.body).toHaveLength(helper.initialBlogs.length - 1)
+
+      const titles = newResponse.body.map(r => r.title)
+
+      expect(titles).not.toContain(
+        initialResponse.body[0].title
+      )
+    })
+    test('unknown id does not delete anything', async () => {
+      const deleteId = await helper.nonExistingId()
+
+      await api
+        .delete(`/api/blogs/${deleteId}`)
+        .expect(204)
+
+      const newResponse = await api.get('/api/blogs')
+      expect(newResponse.body).toHaveLength(helper.initialBlogs.length)
+
     })
   })
 })
