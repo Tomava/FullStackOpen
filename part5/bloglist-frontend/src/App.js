@@ -18,6 +18,9 @@ const App = () => {
       })
       setUser(user)
       blogService.setToken(user.token)
+      window.localStorage.setItem(
+        'loggedBlogUser', JSON.stringify(user)
+      )
       setUsername('')
       setPassword('')
     } catch (exception) {
@@ -26,6 +29,12 @@ const App = () => {
         setErrorMessage(null)
       }, 5000)
     }
+  }
+
+  const handleLogout = async (event) => {
+    event.preventDefault()
+    window.localStorage.removeItem('loggedBlogUser')
+    setUser(null)
   }
 
   const loginForm = () => (
@@ -55,9 +64,10 @@ const App = () => {
     </div>
   )
 
-  const blogsForm = () => (
+  const blogsView = () => (
     <div>
       <h2>blogs</h2>
+      <p>{user.name} logged in <button onClick={handleLogout}>logout </button></p>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
@@ -70,12 +80,21 @@ const App = () => {
     )  
   }, [])
 
+  useEffect(() => {
+    const userString = window.localStorage.getItem('loggedBlogUser')
+    if (userString) {
+      const user = JSON.parse(userString)
+      setUser(user)
+      blogService.setToken(user.token)
+    }
+  }, [])
+
   return (
     <div>
       <h1>Blogs</h1>
       {user === null ?
       loginForm():
-      blogsForm()}
+      blogsView()}
     </div>
     
   )
