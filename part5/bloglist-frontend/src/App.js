@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Notification from './components/notification'
 
 const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
+  const [notificationMessage, setNotificationMessage] = useState(null)
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('')
@@ -12,6 +14,20 @@ const App = () => {
   const [blogTitle, setBlogTitle] = useState('')
   const [blogAuthor, setBlogAuthor] = useState('')
   const [blogUrl, setBlogUrl] = useState('')
+
+  const setNotification = (message) => {
+    setNotificationMessage(message)
+        setTimeout(() => {
+          setNotificationMessage(null)
+        }, 5000)
+  }
+
+  const setError = (message) => {
+    setErrorMessage(message)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -27,10 +43,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setErrorMessage('wrong credentials')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      setError('wrong credentials')
     }
   }
 
@@ -53,12 +66,9 @@ const App = () => {
       setBlogAuthor('')
       setBlogUrl('')
       setBlogs(blogs.concat(addedBlog))
-      console.log(blogs)
+      setNotification(`Added ${addedBlog.title} by ${addedBlog.author}`)
     } catch (exception) {
-      setErrorMessage('something went wrong')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      setError('something went wrong')
     }
   }
 
@@ -155,7 +165,8 @@ const App = () => {
 
   return (
     <div>
-      <h1>Blogs</h1>
+      <Notification message={notificationMessage} className="notification" />
+      <Notification message={errorMessage} className="error" />
       {user === null ?
       loginView():
       blogsView()}
