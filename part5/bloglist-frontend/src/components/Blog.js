@@ -15,7 +15,7 @@ const Blog = ({ blog, updateBlog, deleteBlog, currentUser }) => {
   const handleLike = () => {
     console.log(currentUser)
     console.log(blog.user)
-    updateBlog({...blog, likes: (blog.likes + 1)})
+    updateBlog({ ...blog, likes: (blog.likes + 1) })
   }
 
   const handleDelete = () => {
@@ -25,7 +25,7 @@ const Blog = ({ blog, updateBlog, deleteBlog, currentUser }) => {
   const toggleDetails = () => {
     setShowDetails(!showDetails)
   }
-  
+
   return (
     <div style={blogStyle}>
       <div>
@@ -34,21 +34,21 @@ const Blog = ({ blog, updateBlog, deleteBlog, currentUser }) => {
       {showDetails &&
         <div>
           <div>
-          {blog.url}
+            {blog.url}
           </div>
           <div>
           likes {blog.likes} <button onClick={handleLike}> like </button>
           </div>
           <div>
-          {blog.user.name}
+            {blog.user.name}
           </div>
           {currentUser.username === blog.user.username &&
           <div>
-          <button onClick={handleDelete}> remove </button>
+            <button onClick={handleDelete}> remove </button>
           </div>
           }
         </div>
-      } 
+      }
     </div>
   )
 }

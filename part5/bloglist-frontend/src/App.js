@@ -11,23 +11,23 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [notificationMessage, setNotificationMessage] = useState(null)
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('') 
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
 
   const setNotification = (message) => {
     setNotificationMessage(message)
-        setTimeout(() => {
-          setNotificationMessage(null)
-        }, 5000)
+    setTimeout(() => {
+      setNotificationMessage(null)
+    }, 5000)
   }
 
   const setError = (message) => {
     setErrorMessage(message)
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
   }
 
   const handleLogin = async (event) => {
@@ -68,7 +68,7 @@ const App = () => {
   const handleBlogUpdate = async (updatedBlog) => {
     try {
       const addedBlog = await blogService.update(updatedBlog)
-      setBlogs(blogs.map(blog => blog.id === addedBlog.id ? {...blog, likes: addedBlog.likes }: blog))
+      setBlogs(blogs.map(blog => blog.id === addedBlog.id ? { ...blog, likes: addedBlog.likes }: blog))
       setNotification(`Liked ${addedBlog.title} by ${addedBlog.author}`)
     } catch (exception) {
       setError('something went wrong')
@@ -104,25 +104,25 @@ const App = () => {
   const blogsView = () => {
     blogs.sort((a, b) => b.likes - a.likes)
     return (
-    <div>
-      <h2>Blogs</h2>
-      <p>{user.name} logged in <button onClick={handleLogout}>logout </button></p>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} updateBlog={handleBlogUpdate} deleteBlog={handleBlogDeletion} currentUser={user} />
-      )}
-      <h2>Create new</h2>
-      <Togglable buttonLabel='new note' ref={blogFormRef}>
-        <BlogsForm
-          createBlog={handleBlogCreation}
-        />
-      </Togglable>
-    </div>
-  )}
+      <div>
+        <h2>Blogs</h2>
+        <p>{user.name} logged in <button onClick={handleLogout}>logout </button></p>
+        {blogs.map(blog =>
+          <Blog key={blog.id} blog={blog} updateBlog={handleBlogUpdate} deleteBlog={handleBlogDeletion} currentUser={user} />
+        )}
+        <h2>Create new</h2>
+        <Togglable buttonLabel='new note' ref={blogFormRef}>
+          <BlogsForm
+            createBlog={handleBlogCreation}
+          />
+        </Togglable>
+      </div>
+    )}
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -141,8 +141,8 @@ const App = () => {
       <Notification message={notificationMessage} className="notification" />
       <Notification message={errorMessage} className="error" />
       {user === null ?
-      loginView():
-      blogsView()}
+        loginView():
+        blogsView()}
     </div>
   )
 }
