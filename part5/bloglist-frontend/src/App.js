@@ -65,6 +65,16 @@ const App = () => {
     }
   }
 
+  const handleBlogUpdate = async (updatedBlog) => {
+    try {
+      const addedBlog = await blogService.update(updatedBlog)
+      setBlogs(blogs.map(blog => blog.id === addedBlog.id ? {...blog, likes: addedBlog.likes }: blog))
+      setNotification(`Liked ${addedBlog.title} by ${addedBlog.author}`)
+    } catch (exception) {
+      setError('something went wrong')
+    }
+  }
+
   const loginView = () => (
     <div>
       <h2>Log in to application</h2>
@@ -83,7 +93,7 @@ const App = () => {
       <h2>Blogs</h2>
       <p>{user.name} logged in <button onClick={handleLogout}>logout </button></p>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} updateBlog={handleBlogUpdate} />
       )}
       <h2>Create new</h2>
       <Togglable buttonLabel='new note' ref={blogFormRef}>
