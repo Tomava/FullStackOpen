@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
-import Notification from './components/notification'
+import Notification from './components/Notification'
+import LoginForm from './components/LoginForm'
+import BlogsForm from './components/BlogsForm'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
@@ -11,9 +14,7 @@ const App = () => {
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [blogTitle, setBlogTitle] = useState('')
-  const [blogAuthor, setBlogAuthor] = useState('')
-  const [blogUrl, setBlogUrl] = useState('')
+
 
   const setNotification = (message) => {
     setNotificationMessage(message)
@@ -53,87 +54,28 @@ const App = () => {
     setUser(null)
   }
 
-  const handleBlogCreation = async (event) => {
-    event.preventDefault()
+  const handleBlogCreation = async (newBlog) => {
     try {
-      const newBlog = {
-        title: blogTitle,
-        author: blogAuthor,
-        url: blogUrl
-      }
       const addedBlog = await blogService.add(newBlog)
-      setBlogTitle('')
-      setBlogAuthor('')
-      setBlogUrl('')
       setBlogs(blogs.concat(addedBlog))
       setNotification(`Added ${addedBlog.title} by ${addedBlog.author}`)
+      blogFormRef.current.toggleVisibility()
     } catch (exception) {
       setError('something went wrong')
     }
   }
 
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-          username
-          <input
-            type="text"
-            value={username}
-            name="Username"
-            onChange={({ target }) => setUsername(target.value)}
-          />
-      </div>
-      <div>
-          password
-          <input
-            type="password"
-            value={password}
-            name="Password"
-            onChange={({ target }) => setPassword(target.value)}
-          />
-      </div>
-      <button type="submit">login</button>
-    </form>
-  )
-
   const loginView = () => (
     <div>
       <h2>Log in to application</h2>
-      {loginForm()}
+      <LoginForm
+        username={username}
+        password={password}
+        handleUsernameChange={({ target }) => setUsername(target.value)}
+        handlePasswordChange={({ target }) => setPassword(target.value)}
+        handleLogin={handleLogin}
+      />
     </div>
-  )
-
-  const blogsForm = () => (
-    <form onSubmit={handleBlogCreation}>
-      <div>
-          title:
-          <input
-            type="text"
-            value={blogTitle}
-            name="title"
-            onChange={({ target }) => setBlogTitle(target.value)}
-          />
-      </div>
-      <div>
-          author:
-          <input
-            type="text"
-            value={blogAuthor}
-            name="author"
-            onChange={({ target }) => setBlogAuthor(target.value)}
-          />
-      </div>
-      <div>
-          url:
-          <input
-            type="text"
-            value={blogUrl}
-            name="url"
-            onChange={({ target }) => setBlogUrl(target.value)}
-          />
-      </div>
-      <button type="submit">create</button>
-    </form>
   )
 
   const blogsView = () => (
@@ -144,7 +86,11 @@ const App = () => {
         <Blog key={blog.id} blog={blog} />
       )}
       <h2>Create new</h2>
-      {blogsForm()}
+      <Togglable buttonLabel='new note' ref={blogFormRef}>
+        <BlogsForm
+          createBlog={handleBlogCreation}
+        />
+      </Togglable>
     </div>
   )
 
@@ -163,6 +109,8 @@ const App = () => {
     }
   }, [])
 
+  const blogFormRef = useRef()
+
   return (
     <div>
       <Notification message={notificationMessage} className="notification" />
@@ -171,7 +119,6 @@ const App = () => {
       loginView():
       blogsView()}
     </div>
-    
   )
 }
 
