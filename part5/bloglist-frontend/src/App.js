@@ -88,7 +88,9 @@ const App = () => {
     </div>
   )
 
-  const blogsView = () => (
+  const blogsView = () => {
+    blogs.sort((a, b) => b.likes - a.likes)
+    return (
     <div>
       <h2>Blogs</h2>
       <p>{user.name} logged in <button onClick={handleLogout}>logout </button></p>
@@ -102,7 +104,7 @@ const App = () => {
         />
       </Togglable>
     </div>
-  )
+  )}
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
