@@ -75,6 +75,19 @@ const App = () => {
     }
   }
 
+  const handleBlogDeletion = async (deleteBlog) => {
+    if (!window.confirm(`Remove blog ${deleteBlog.title} by ${deleteBlog.author}`)) {
+      return
+    }
+    try {
+      const deletedBlog = await blogService.remove(deleteBlog.id)
+      setBlogs(blogs.filter(blog => blog.id !== deleteBlog.id))
+      setNotification(`Removed ${deletedBlog.title} by ${deletedBlog.author}`)
+    } catch (exception) {
+      setError('something went wrong')
+    }
+  }
+
   const loginView = () => (
     <div>
       <h2>Log in to application</h2>
@@ -95,7 +108,7 @@ const App = () => {
       <h2>Blogs</h2>
       <p>{user.name} logged in <button onClick={handleLogout}>logout </button></p>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} updateBlog={handleBlogUpdate} />
+        <Blog key={blog.id} blog={blog} updateBlog={handleBlogUpdate} deleteBlog={handleBlogDeletion} currentUser={user} />
       )}
       <h2>Create new</h2>
       <Togglable buttonLabel='new note' ref={blogFormRef}>

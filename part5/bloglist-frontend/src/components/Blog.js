@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 
-const Blog = ({ blog, updateBlog }) => {
+const Blog = ({ blog, updateBlog, deleteBlog, currentUser }) => {
   const [showDetails, setShowDetails] = useState(false)
 
   const blogStyle = {
@@ -13,7 +13,13 @@ const Blog = ({ blog, updateBlog }) => {
   }
 
   const handleLike = () => {
+    console.log(currentUser)
+    console.log(blog.user)
     updateBlog({...blog, likes: (blog.likes + 1)})
+  }
+
+  const handleDelete = () => {
+    deleteBlog(blog)
   }
 
   const toggleDetails = () => {
@@ -36,6 +42,11 @@ const Blog = ({ blog, updateBlog }) => {
           <div>
           {blog.user.name}
           </div>
+          {currentUser.username === blog.user.username &&
+          <div>
+          <button onClick={handleDelete}> remove </button>
+          </div>
+          }
         </div>
       } 
     </div>
