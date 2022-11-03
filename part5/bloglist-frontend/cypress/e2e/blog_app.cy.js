@@ -90,6 +90,28 @@ describe('Blog app', function() {
         cy.get('#blog-toggle-details-button').click()
         cy.contains('#blog-remove-button').should('not.exist')
       })
+
+      it('blogs are sorted correctly', function() {
+        cy.createBlog({ title: 'Third blog', author: 'Test writer', url: 'test.com', likes: 0 })
+        cy.createBlog({ title: 'Second blog', author: 'Test writer', url: 'test.com', likes: 5 })
+        cy.createBlog({ title: 'Fourth blog', author: 'Test writer', url: 'test.com', likes: 0 })
+        // Initial order
+        cy.get('.blog').eq(0).should('contain', 'Test blog')
+        cy.get('.blog').eq(1).should('contain', 'Second blog')
+        cy.get('.blog').eq(2).should('contain', 'Third blog')
+        cy.get('.blog').eq(3).should('contain', 'Fourth blog')
+        // Like
+        cy.get('.blog').eq(3).as('lastBlog')
+        cy.get('@lastBlog').find('#blog-toggle-details-button').click()
+        cy.get('@lastBlog').find('#blog-like-button').click()
+        // After like
+        cy.visit(FRONTEND_ADDRESS)
+        cy.get('.blog').eq(0).should('contain', 'Test blog')
+        cy.get('.blog').eq(1).should('contain', 'Second blog')
+        cy.get('.blog').eq(2).should('contain', 'Fourth blog')
+        cy.get('.blog').eq(3).should('contain', 'Third blog')
+      })
+
     })
   })
 
