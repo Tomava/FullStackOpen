@@ -1,6 +1,6 @@
-const calculateBmi = (height_cm: number, mass: number) : string => {
-  const height_m: number = height_cm / 100
-  const bmi = mass / (height_m * height_m)
+const calculateBmi = (heightCm: number, mass: number) : string => {
+  const heightM: number = heightCm / 100
+  const bmi = mass / (heightM * heightM)
   if (bmi < 18.5) {
     return "Underweight"
   } else if (bmi < 25) {
