@@ -5,7 +5,7 @@ interface ArgumentValues {
   mass: number;
 }
 
-const calculateBmi = (heightCm: number, mass: number) : string => {
+export const calculateBmi = (heightCm: number, mass: number) : string => {
   const heightM: number = heightCm / 100
   const bmi = mass / (heightM * heightM)
   if (bmi < 18.5) {
