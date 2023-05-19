@@ -1,3 +1,10 @@
+import isNumber from "./utils";
+
+interface ArgumentValues {
+  target: number;
+  values: number[];
+}
+
 interface ExerciseResult {
   periodLength: number,
   trainingDays: number,
@@ -45,4 +52,33 @@ const calculateExercises = (dailyExerciseHours: number[], targetHours: number): 
   }
 };
 
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2));
+const parseArguments = (args: string[]): ArgumentValues => {
+  if (args.length < 4) {
+    throw new Error("Wrong amount of arguments");
+  }
+  if (isNumber(args[2])) {
+    let values: number[] = [];
+    for (let i = 3; i < args.length; i++) {
+      if (!isNumber(args[i])) {
+        throw new Error("Wrong type of arguments");
+      }
+      values.push(Number(args[i]));
+    }
+    return {
+      target: Number(process.argv[2]),
+      values: values
+    };
+  }
+  throw new Error("Wrong type of arguments");
+}
+
+try {
+  const { target, values } = parseArguments(process.argv);
+  console.log(calculateExercises(values, target));
+} catch (error: unknown) {
+  let errorMessage = 'Something bad happened.'
+  if (error instanceof Error) {
+    errorMessage += ' Error: ' + error.message;
+  }
+  console.log(errorMessage);
+}
