@@ -2,6 +2,16 @@ import express from "express";
 import { calculateBmi } from "./bmiCalculator";
 import isNumber from "./utils";
 
+interface ErrorMessage {
+  error: string
+}
+
+interface BmiMessage {
+  weight: string,
+  height: string,
+  bmi: string
+}
+
 const app = express();
 
 app.get("/hello", (_req, res) => {
@@ -11,10 +21,10 @@ app.get("/hello", (_req, res) => {
 app.get("/bmi", (req, res) => {
   const height: string | undefined = req.query.height?.toString();
   const weight: string | undefined = req.query.weight?.toString();
-  let message: Object = {
+  let message: ErrorMessage | BmiMessage = {
     error: "malformatted parameters"
   };
-  if (isNumber(height) && isNumber(weight)) {
+  if (height && isNumber(height) && weight && isNumber(weight)) {
     const bmi: string = calculateBmi(Number(height), Number(weight));
     message = {
       weight: weight,

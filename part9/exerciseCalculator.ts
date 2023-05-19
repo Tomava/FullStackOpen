@@ -13,7 +13,7 @@ interface ExerciseResult {
   ratingDescription: string,
   target: number,
   average: number,
-};
+}
 
 const calculateExercises = (dailyExerciseHours: number[], targetHours: number): ExerciseResult => {
   const numberOfDays: number = dailyExerciseHours.length;
@@ -29,7 +29,7 @@ const calculateExercises = (dailyExerciseHours: number[], targetHours: number): 
   } else {
     rating = 1;
   }
-  let ratingDescription: string = "";
+  let ratingDescription = "";
   switch (rating) {
     case (1):
       ratingDescription = "very bad";
@@ -49,7 +49,7 @@ const calculateExercises = (dailyExerciseHours: number[], targetHours: number): 
     ratingDescription: ratingDescription,
     target: targetHours,
     average: averageTime,
-  }
+  };
 };
 
 const parseArguments = (args: string[]): ArgumentValues => {
@@ -57,7 +57,7 @@ const parseArguments = (args: string[]): ArgumentValues => {
     throw new Error("Wrong amount of arguments");
   }
   if (isNumber(args[2])) {
-    let values: number[] = [];
+    const values: number[] = [];
     for (let i = 3; i < args.length; i++) {
       if (!isNumber(args[i])) {
         throw new Error("Wrong type of arguments");
@@ -70,15 +70,15 @@ const parseArguments = (args: string[]): ArgumentValues => {
     };
   }
   throw new Error("Wrong type of arguments");
-}
+};
 
 try {
   const { target, values } = parseArguments(process.argv);
   console.log(calculateExercises(values, target));
 } catch (error: unknown) {
-  let errorMessage = 'Something bad happened.'
+  let errorMessage = "Something bad happened.";
   if (error instanceof Error) {
-    errorMessage += ' Error: ' + error.message;
+    errorMessage += " Error: " + error.message;
   }
   console.log(errorMessage);
 }
