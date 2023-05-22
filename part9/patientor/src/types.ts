@@ -14,3 +14,5 @@ export interface PatientEntry {
 }
 
 export type PatientEntryStripped = Omit<PatientEntry, "ssn">;
+
+export type newPatientEntry = Omit<PatientEntry, "id">;
