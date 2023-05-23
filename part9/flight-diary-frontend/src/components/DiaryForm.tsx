@@ -15,9 +15,6 @@ export const DiaryForm = ({ handleEntryCreation }: { handleEntryCreation: (newEn
       weather: entryWeather as Weather,
       comment: entryComment
     }
-    setEntryDate("");
-    setEntryVisibility("");
-    setEntryWeather("");
     setEntryComment("");
     handleEntryCreation(newEntry);
   }
@@ -29,7 +26,7 @@ export const DiaryForm = ({ handleEntryCreation }: { handleEntryCreation: (newEn
           date: {" "}
           <input
           id="entry-date"
-          type="text"
+          type="date"
           value={entryDate}
           name="date"
           onChange={({ target }) => setEntryDate(target.value)}
@@ -38,22 +35,80 @@ export const DiaryForm = ({ handleEntryCreation }: { handleEntryCreation: (newEn
         <div>
           visibility: {" "}
           <input
-          id="entry-visibility"
-          type="text"
+          id="entry-visibility-great"
+          type="radio"
           value={entryVisibility}
           name="visibility"
-          onChange={({ target }) => setEntryVisibility(target.value)}
+          onChange={() => setEntryVisibility("great")}
           />
+          <label htmlFor="entry-visibility-great"> great</label>
+          <input
+          id="entry-visibility-good"
+          type="radio"
+          value={entryVisibility}
+          name="visibility"
+          onChange={() => setEntryVisibility("good")}
+          />
+          <label htmlFor="entry-visibility-good"> good</label>
+          <input
+          id="entry-visibility-ok"
+          type="radio"
+          value={entryVisibility}
+          name="visibility"
+          onChange={() => setEntryVisibility("ok")}
+          />
+          <label htmlFor="entry-visibility-ok"> ok</label>
+          <input
+          id="entry-visibility-poor"
+          type="radio"
+          value={entryVisibility}
+          name="visibility"
+          onChange={() => setEntryVisibility("poor")}
+          />
+          <label htmlFor="entry-visibility-poor"> poor</label>
         </div>
         <div>
           weather: {" "}
           <input
-          id="entry-weather"
-          type="text"
+          id="entry-weather-sunny"
+          type="radio"
           value={entryWeather}
           name="weather"
-          onChange={({ target }) => setEntryWeather(target.value)}
+          onChange={() => setEntryWeather("sunny")}
           />
+          <label htmlFor="entry-visibility-sunny"> sunny</label>
+          <input
+          id="entry-weather-rainy"
+          type="radio"
+          value={entryWeather}
+          name="weather"
+          onChange={() => setEntryWeather("rainy")}
+          />
+          <label htmlFor="entry-visibility-rainy"> rainy</label>
+          <input
+          id="entry-weather-cloud"
+          type="radio"
+          value={entryWeather}
+          name="weather"
+          onChange={() => setEntryWeather("cloud")}
+          />
+          <label htmlFor="entry-visibility-cloud"> cloud</label>
+          <input
+          id="entry-weather-stormy"
+          type="radio"
+          value={entryWeather}
+          name="weather"
+          onChange={() => setEntryWeather("stormy")}
+          />
+          <label htmlFor="entry-visibility-stormy"> stormy</label>
+          <input
+          id="entry-weather-windy"
+          type="radio"
+          value={entryWeather}
+          name="weather"
+          onChange={() => setEntryWeather("windy")}
+          />
+          <label htmlFor="entry-visibility-windy"> windy</label>
         </div>
         <div>
           comment: {" "}
