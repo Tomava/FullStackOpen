@@ -6,6 +6,7 @@ import { Patient } from "../../types";
 import { Gender } from "../../types";
 import patientService from "../../services/patients";
 import { useEffect, useState } from "react";
+import { EntryComponent } from "../Entry";
 
 const PatientPage = () => {
   const params = useParams<{ patientId: string }>();
@@ -35,6 +36,8 @@ const PatientPage = () => {
         <h2>{patient.name} {genderIcon}</h2>
         <p>ssn: {patient.ssn}</p>
         <p>occupation: {patient.occupation}</p>
+        <h4>entries</h4>
+        {patient.entries && patient.entries.map((entry) => (<EntryComponent key={entry.id} entry={entry}/>))}
       </div>
     );
   }

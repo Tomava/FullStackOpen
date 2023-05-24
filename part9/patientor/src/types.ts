@@ -70,4 +70,4 @@ export type NonSensitivePatient = Omit<Patient, "ssn" | "entries">;
 
 export type PatientEntryStripped = Omit<Patient, "ssn">;
 
-export type newPatientEntry = Omit<Patient, "id">;
+export type NewPatientEntry = Omit<Patient, "id">;

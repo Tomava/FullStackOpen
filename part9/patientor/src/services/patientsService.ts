@@ -1,5 +1,5 @@
 import patients from "../../data/patients";
-import { PatientEntryStripped, Patient, newPatientEntry } from "../types";
+import { PatientEntryStripped, Patient, NewPatientEntry } from "../types";
 import { v1 as uuid } from "uuid";
 
 
@@ -22,7 +22,7 @@ const getPatient = (id: string): Patient => {
   throw new Error("Not found");
 };
 
-const addPatient = (patient: newPatientEntry): Patient => {
+const addPatient = (patient: NewPatientEntry): Patient => {
   const id: string = uuid();
   const newPatient: Patient = { ...patient, id };
   patients.push(newPatient);
