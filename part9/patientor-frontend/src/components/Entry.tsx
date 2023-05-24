@@ -1,17 +1,36 @@
-import { Entry } from "../types";
+import { DiagnosisEntry, Entry } from "../types";
+import diagnosesService from "../services/diagnoses";
+import { useEffect, useState } from "react";
 
 export const EntryComponent = ({entry}: {entry: Entry}) => {
-  let diagnosisCodesElement;
-  if (entry.diagnosisCodes) {
-    const diagnosisCodes = entry.diagnosisCodes.map((code) => (
-      <li key={code}>{code}</li>
-    ));
-    diagnosisCodesElement = <ul>{diagnosisCodes}</ul>;
-  }
+  const [diagnoses, setDiagnoses] = useState<DiagnosisEntry[]>([]);
+  
+  const featchDiagnoses = async () => {
+    if (entry.diagnosisCodes) {
+      const diagnosesPromises = entry.diagnosisCodes.map((code) =>
+        diagnosesService.getOne(code)
+      );
+      const diagnoses = await Promise.all(diagnosesPromises);
+      setDiagnoses(diagnoses);
+    }
+  };
+
+  useEffect(() => {
+    featchDiagnoses().catch(console.error);
+  }, []);
+  
   return (
     <div>
       <p>{entry.date} <i>{entry.description}</i></p>
-      {entry.diagnosisCodes && diagnosisCodesElement}
+      {entry.diagnosisCodes && (
+       <ul>
+       {diagnoses.map((diagnosis) => (
+         <li key={diagnosis.code}>
+           {diagnosis.code} {diagnosis.name}
+         </li>
+       ))}
+     </ul>
+   )}
     </div>
   );
 };
