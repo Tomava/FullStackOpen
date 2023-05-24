@@ -1,3 +1,3 @@
 {
-  "eslint.workingDirectories": ["part9/patientor"]
+  "eslint.workingDirectories": ["part9/patientor", "part9/patientor-frontend"]
 }
