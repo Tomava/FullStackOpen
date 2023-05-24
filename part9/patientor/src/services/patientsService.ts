@@ -1,10 +1,10 @@
-import data from "../../data/patients";
+import patients from "../../data/patients";
 import { PatientEntryStripped, Patient, newPatientEntry } from "../types";
 import { v1 as uuid } from "uuid";
 
 
 const getPatients = (): PatientEntryStripped[] => {
-  return data.map(({ id, name, dateOfBirth, gender, occupation, entries }) => ({
+  return patients.map(({ id, name, dateOfBirth, gender, occupation, entries }) => ({
     id,
     name,
     dateOfBirth,
@@ -15,7 +15,7 @@ const getPatients = (): PatientEntryStripped[] => {
 };
 
 const getPatient = (id: string): Patient => {
-  const foundPatient: Patient | undefined = data.find((patient) => patient.id === id);
+  const foundPatient: Patient | undefined = patients.find((patient) => patient.id === id);
   if (foundPatient) {
     return foundPatient;
   }
@@ -25,7 +25,7 @@ const getPatient = (id: string): Patient => {
 const addPatient = (patient: newPatientEntry): Patient => {
   const id: string = uuid();
   const newPatient: Patient = { ...patient, id };
-  data.push(newPatient);
+  patients.push(newPatient);
   return newPatient;
 };
 
