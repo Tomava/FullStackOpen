@@ -8,6 +8,20 @@ router.get("/", (_req, res) => {
   res.send(patientService.getPatients());
 });
 
+router.get("/:id", (req, res) => {
+  const id: string = req.params.id;
+  try {
+    const foundPatient = patientService.getPatient(id);
+    res.send(foundPatient);
+  } catch (error: unknown) {
+    let errorMessage = 'Something went wrong.';
+    if (error instanceof Error) {
+      errorMessage += ' Error: ' + error.message;
+    }
+    res.status(400).send(errorMessage);
+  }
+});
+
 router.post("/", (req, res) => {
   try {
     const patientEntry = toNewPatientEntry(req.body);
