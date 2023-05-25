@@ -10,7 +10,14 @@ const getOne = async(code: string) => {
   return data;
 };
 
+const getAll = async() => {
+  const { data } = await axios.get<DiagnosisEntry[]>(
+    `${apiBaseUrl}/diagnoses`
+  );
+  return data;
+};
+
 export default {
-  getOne
+  getOne, getAll
 };
 

@@ -9,12 +9,26 @@ import {
   Button,
   styled,
 } from "@mui/material";
-import { Discharge, EntryType, NewEntry, Patient, SickLeave } from "../../types";
+import {
+  DiagnosisEntry,
+  Discharge,
+  EntryType,
+  HealthCheckRating,
+  NewEntry,
+  Patient,
+  SickLeave,
+} from "../../types";
 import { useEffect, useState } from "react";
 import { toNewEntry } from "../../utils";
 import patientService from "../../services/patients";
 
-export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
+export const NewEntryForm = ({
+  patientId,
+  diagnoses,
+}: {
+  patientId: string | undefined;
+  diagnoses: DiagnosisEntry[];
+}) => {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [newEntry, setNewEntry] = useState<NewEntry>();
@@ -22,7 +36,7 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
   const [specialist, setSpecialist] = useState("");
-  const [diagnosisCodes, setDiagnosisCodes] = useState("");
+  const [diagnosesCodes, setDiagnosesCodes] = useState<string[]>([]);
   const [healthCheckRating, setHealthCheckRating] = useState(1);
   const [dischargeDate, setDischargeDate] = useState("");
   const [dischargeCriteria, setDischargeCriteria] = useState("");
@@ -36,13 +50,16 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
       if (patientId && newEntry) {
         try {
           setDisableAdd(true);
-          const data: Patient = await patientService.addPatientEntry(patientId, newEntry);
+          const data: Patient = await patientService.addPatientEntry(
+            patientId,
+            newEntry
+          );
           setNotification("Success! Added: " + data.name);
           setError("");
         } catch (error: unknown) {
-          setError('Something went wrong.');
+          setError("Something went wrong.");
           if (error instanceof Error) {
-            setError(' Error: ' + error.message);
+            setError(" Error: " + error.message);
           }
           setNotification("");
         } finally {
@@ -55,72 +72,94 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
 
   const setNotification = (message: string) => {
     setNotificationMessage(message);
-        setTimeout(() => {
-          setNotificationMessage("");
-        }, 5000);
+    setTimeout(() => {
+      setNotificationMessage("");
+    }, 5000);
   };
 
   const setError = (message: string) => {
     setErrorMessage(message);
-        setTimeout(() => {
-          setErrorMessage("");
-        }, 5000);
+    setTimeout(() => {
+      setErrorMessage("");
+    }, 5000);
   };
 
   const handleSetNewEntryType = (event: SelectChangeEvent<EntryType>) => {
     setNewEntryType(event.target.value as EntryType);
   };
 
+  const handleSetDiagnosisCode = (
+    event: SelectChangeEvent<typeof diagnosesCodes>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+    setDiagnosesCodes(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+
   const handleCreation = () => {
     try {
-      switch(newEntryType) {
-        case(EntryType.HealthCheck):
-          setNewEntry(toNewEntry({
-            type: EntryType.HealthCheck,
-            description: description,
-            date: date,
-            specialist: specialist,
-            diagnosisCodes: diagnosisCodes,
-            healthCheckRating: healthCheckRating,
-          }));
+      switch (newEntryType) {
+        case EntryType.HealthCheck:
+          setNewEntry(
+            toNewEntry({
+              type: EntryType.HealthCheck,
+              description: description,
+              date: date,
+              specialist: specialist,
+              diagnosisCodes: diagnosesCodes,
+              healthCheckRating: healthCheckRating,
+            })
+          );
           break;
-        case(EntryType.Hospital):
+        case EntryType.Hospital:
           const discharge: Discharge = {
             date: dischargeDate,
             criteria: dischargeCriteria,
           };
-          setNewEntry(toNewEntry({
-            type: EntryType.Hospital,
-            description: description,
-            date: date,
-            specialist: specialist,
-            diagnosisCodes: diagnosisCodes,
-            discharge: discharge,
-          }));
+          setNewEntry(
+            toNewEntry({
+              type: EntryType.Hospital,
+              description: description,
+              date: date,
+              specialist: specialist,
+              diagnosisCodes: diagnosesCodes,
+              discharge: discharge,
+            })
+          );
           break;
-        case(EntryType.OccupationalHealthcare):
+        case EntryType.OccupationalHealthcare:
           const sickLeave: SickLeave = {
             startDate: sickLeaveStartDate,
             endDate: sickLeaveEndDate,
           };
-          setNewEntry(toNewEntry({
-            type: EntryType.OccupationalHealthcare,
-            description: description,
-            date: date,
-            specialist: specialist,
-            diagnosisCodes: diagnosisCodes,
-            employerName: employerName,
-            sickLeave: sickLeave,
-          }));
+          setNewEntry(
+            toNewEntry({
+              type: EntryType.OccupationalHealthcare,
+              description: description,
+              date: date,
+              specialist: specialist,
+              diagnosisCodes: diagnosesCodes,
+              employerName: employerName,
+              sickLeave: sickLeave,
+            })
+          );
           break;
-        }
+      }
     } catch (error: unknown) {
-      setError('Something went wrong.');
+      setError("Something went wrong.");
       if (error instanceof Error) {
-        setError(' Error: ' + error.message);
+        setError(" Error: " + error.message);
       }
       setNotification("");
     }
+  };
+
+  const textFieldStyle: React.CSSProperties = {
+    width: "100%",
   };
 
   const boxStyle: React.CSSProperties = {
@@ -164,7 +203,6 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
     margin-bottom: 10px;
   `;
 
-
   const Container = styled("div")`
     display: flex;
     justify-content: space-between;
@@ -183,6 +221,8 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
     <div>
       <div>
         <TextField
+          InputLabelProps={{ shrink: true }}
+          style={textFieldStyle}
           id="description-input"
           label="Description"
           variant="standard"
@@ -194,8 +234,11 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
       </div>
       <div>
         <TextField
+          InputLabelProps={{ shrink: true }}
+          style={textFieldStyle}
           id="date-input"
           label="Date"
+          type="date"
           variant="standard"
           value={date}
           onChange={(
@@ -205,6 +248,8 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
       </div>
       <div>
         <TextField
+          InputLabelProps={{ shrink: true }}
+          style={textFieldStyle}
           id="specialist-input"
           label="Specialist"
           variant="standard"
@@ -215,15 +260,25 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
         />
       </div>
       <div>
-        <TextField
-          id="diagnosisCodes-input"
-          label="Diagnoses codes"
-          variant="standard"
-          value={diagnosisCodes}
-          onChange={(
-            event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-          ) => setDiagnosisCodes(event.target.value)}
-        />
+        <FormControl variant="standard" style={textFieldStyle}>
+          <InputLabel shrink id="diagnoses-codes-label">
+            Diagnoses codes
+          </InputLabel>
+          <Select
+            id="diagnosisCodes-input"
+            multiple
+            labelId="diagnoses-codes-label"
+            variant="standard"
+            value={diagnosesCodes}
+            onChange={handleSetDiagnosisCode}
+          >
+            {diagnoses.map((diagnosis) => (
+              <MenuItem key={diagnosis.code} value={diagnosis.code}>
+                {diagnosis.code}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </div>
     </div>
   );
@@ -234,15 +289,30 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
           {formLayout}
           <div style={indentStyle}>
             <Typography style={textStyle}>Rating:</Typography>
-            <TextField
-              id="healthCheckRating-input"
-              label="Health Check Rating"
-              variant="standard"
-              value={healthCheckRating}
-              onChange={(
-                event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-              ) => setHealthCheckRating(Number(event.target.value))}
-            />
+            <FormControl variant="standard" style={textFieldStyle}>
+              <InputLabel shrink id="health-check-rating-label">
+                Health Check Rating
+              </InputLabel>
+              <Select
+                id="healthCheckRating-input"
+                labelId="health-check-rating-label"
+                variant="standard"
+                value={healthCheckRating}
+                onChange={(event: SelectChangeEvent<number>) =>
+                  setHealthCheckRating(event.target.value as HealthCheckRating)
+                }
+              >
+                {Object.keys(HealthCheckRating).map((rating) => {
+                  if (!isNaN(Number(rating))) {
+                    return (
+                      <MenuItem key={rating} value={rating}>
+                        {rating}
+                      </MenuItem>
+                    );
+                  }
+                })}
+              </Select>
+            </FormControl>
           </div>
         </div>
       );
@@ -255,23 +325,33 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
             <Typography style={textStyle}>Discharge:</Typography>
             <div>
               <TextField
+                InputLabelProps={{ shrink: true }}
+                style={textFieldStyle}
                 id="dischargeDate-input"
+                type="date"
                 label="Date"
                 variant="standard"
+                placeholder=""
                 value={dischargeDate}
                 onChange={(
-                  event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+                  event: React.ChangeEvent<
+                    HTMLTextAreaElement | HTMLInputElement
+                  >
                 ) => setDischargeDate(event.target.value)}
               />
             </div>
             <div>
               <TextField
+                InputLabelProps={{ shrink: true }}
+                style={textFieldStyle}
                 id="dischargeCriteria-input"
                 label="Criteria"
                 variant="standard"
                 value={dischargeCriteria}
                 onChange={(
-                  event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+                  event: React.ChangeEvent<
+                    HTMLTextAreaElement | HTMLInputElement
+                  >
                 ) => setDischargeCriteria(event.target.value)}
               />
             </div>
@@ -287,34 +367,48 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
             <Typography style={textStyle}>Sick leave:</Typography>
             <div>
               <TextField
+                InputLabelProps={{ shrink: true }}
+                style={textFieldStyle}
                 id="emloyerName-input"
                 label="Employer name"
                 variant="standard"
                 value={employerName}
                 onChange={(
-                  event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+                  event: React.ChangeEvent<
+                    HTMLTextAreaElement | HTMLInputElement
+                  >
                 ) => setEmployerName(event.target.value)}
               />
             </div>
             <div>
               <TextField
+                InputLabelProps={{ shrink: true }}
+                style={textFieldStyle}
                 id="sickLeaveStartDate-input"
+                type="date"
                 label="Start date"
                 variant="standard"
                 value={sickLeaveStartDate}
                 onChange={(
-                  event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+                  event: React.ChangeEvent<
+                    HTMLTextAreaElement | HTMLInputElement
+                  >
                 ) => setSickLeaveStartDate(event.target.value)}
               />
             </div>
             <div>
               <TextField
+                InputLabelProps={{ shrink: true }}
+                style={textFieldStyle}
                 id="sickLeaveEndDate-input"
+                type="date"
                 label="End date"
                 variant="standard"
                 value={sickLeaveEndDate}
                 onChange={(
-                  event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+                  event: React.ChangeEvent<
+                    HTMLTextAreaElement | HTMLInputElement
+                  >
                 ) => setSickLeaveEndDate(event.target.value)}
               />
             </div>
@@ -327,13 +421,9 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
   formLayout = (
     <div style={boxStyle}>
       {notificationMessage && (
-      <Notification>
-        {notificationMessage}
-      </Notification>)}
-      {errorMessage && (
-      <ErrorComponent>
-        {errorMessage}
-      </ErrorComponent>)}
+        <Notification>{notificationMessage}</Notification>
+      )}
+      {errorMessage && <ErrorComponent>{errorMessage}</ErrorComponent>}
       {formLayout}
       <Container>
         <CancelButton
@@ -342,7 +432,11 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
         >
           Cancel
         </CancelButton>
-        <AddButton variant="contained" onClick={handleCreation} disabled={disableAdd}>
+        <AddButton
+          variant="contained"
+          onClick={handleCreation}
+          disabled={disableAdd}
+        >
           Add
         </AddButton>
       </Container>
@@ -352,7 +446,9 @@ export const NewEntryForm = ({patientId}: {patientId: string | undefined}) => {
   return (
     <div>
       <FormControl fullWidth>
-        <InputLabel id="entry-type-select-label">Type</InputLabel>
+        <InputLabel id="entry-type-select-label" style={textFieldStyle}>
+          Type
+        </InputLabel>
         <Select
           labelId="entry-type-select-label"
           id="entry-type-select"

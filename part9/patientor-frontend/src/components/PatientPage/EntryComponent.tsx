@@ -1,6 +1,4 @@
-import { DiagnosisEntry, Entry, EntryType } from "../types";
-import diagnosesService from "../services/diagnoses";
-import { useEffect, useState } from "react";
+import { DiagnosisEntry, Entry, EntryType } from "../../types";
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import HealingIcon from '@mui/icons-material/Healing';
 import WorkIcon from '@mui/icons-material/Work';
@@ -24,22 +22,7 @@ const EntryDetails: React.FC<{ entry: Entry }> = ({ entry }) => {
   }
 };
 
-export const EntryComponent = ({entry}: {entry: Entry}) => {
-  const [diagnoses, setDiagnoses] = useState<DiagnosisEntry[]>([]);
-  
-  const featchDiagnoses = async () => {
-    if (entry.diagnosisCodes) {
-      const diagnosesPromises = entry.diagnosisCodes.map((code) =>
-        diagnosesService.getOne(code)
-      );
-      const diagnoses = await Promise.all(diagnosesPromises);
-      setDiagnoses(diagnoses);
-    }
-  };
-
-  useEffect(() => {
-    featchDiagnoses().catch(console.error);
-  }, []);
+export const EntryComponent = ({entry, diagnoses}: {entry: Entry, diagnoses: DiagnosisEntry[]}) => {
 
   const boxStyle: React.CSSProperties  = {
     border: '1px solid black',
@@ -52,11 +35,16 @@ export const EntryComponent = ({entry}: {entry: Entry}) => {
       <p>{entry.date} <EntryDetails entry={entry} /><br /><i>{entry.description}</i></p>
       {entry.diagnosisCodes && (
        <ul>
-       {diagnoses.map((diagnosis) => (
-         <li key={diagnosis.code}>
-           {diagnosis.code} {diagnosis.name}
-         </li>
-       ))}
+       {entry.diagnosisCodes?.map((diagnosisCode) => {
+        const diagnosis = diagnoses.find((diagnosisSearch) => diagnosisSearch.code === diagnosisCode);
+        if (diagnosis) {
+          return (
+            <li key={diagnosis.code}>
+              {diagnosis.code} {diagnosis.name}
+            </li>
+          );
+        }
+       })}
        </ul>
       )}
      <p>diagnosed by {entry.specialist}</p>

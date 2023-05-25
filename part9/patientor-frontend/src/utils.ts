@@ -66,10 +66,10 @@ const isHealthCheckRating = (param: number): param is HealthCheckRating => {
 };
 
 const parseHealthCheckRating = (healthCheckRating: unknown): HealthCheckRating => {
-  if (!isNumber(healthCheckRating) || !isHealthCheckRating(healthCheckRating)) {
+  if (!isNumber(Number(healthCheckRating)) || !isHealthCheckRating(Number(healthCheckRating))) {
     throw new Error("Incorrect health check rating: " + healthCheckRating);
   }
-  return healthCheckRating;
+  return Number(healthCheckRating);
 };
 
 const parseDischarge = (object: unknown): Discharge => {
