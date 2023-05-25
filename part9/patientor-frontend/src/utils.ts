@@ -52,6 +52,9 @@ const toNewPatientEntry = (object: unknown): NewPatientEntry => {
 };
 
 const parseDiagnosisCodes = (object: unknown): Array<DiagnosisEntry['code']> => {
+  if (isString(object)) {
+    object = object.split(",");
+  }
   if (!Array.isArray(object) || !object.every(item => isString(item))) {
     throw new Error("Incorrect diagnosis codes: " + object);
   }

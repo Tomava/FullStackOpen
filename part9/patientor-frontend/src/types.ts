@@ -36,7 +36,7 @@ interface HealthCheckEntry extends BaseEntry {
   healthCheckRating: HealthCheckRating;
 }
 
-interface Discharge {
+export interface Discharge {
   date: string,
   criteria: string
 }
@@ -46,7 +46,7 @@ interface HospitalEntry extends BaseEntry {
   discharge: Discharge;
 }
 
-interface SickLeave {
+export interface SickLeave {
   startDate: string,
   endDate: string
 }
@@ -72,6 +72,12 @@ export interface Patient {
   entries: Entry[]
 }
 
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
+
+export type NewEntry = UnionOmit<Entry, 'id'>;
+
 export type PatientFormValues = Omit<Patient, "id" | "entries">;
 
 export type NonSensitivePatient = Omit<Patient, "ssn" | "entries">;
+
+export type NewPatientEntry = Omit<Patient, "id">;
